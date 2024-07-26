@@ -9,7 +9,8 @@ import os
 import json
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY")  # Set this in Replit Secrets
+app.secret_key = os.environ.get(
+    "FLASK_SECRET_KEY")  # Set this in Replit Secrets
 
 # Set up OAuth 2.0 flow
 flow = Flow.from_client_config(
@@ -21,9 +22,9 @@ flow = Flow.from_client_config(
             "token_uri": "https://oauth2.googleapis.com/token",
         }
     },
-    scopes=["https://www.googleapis.com/auth/adwords"]
-)
+    scopes=["https://www.googleapis.com/auth/adwords"])
 flow.redirect_uri = "https://updatemate-ppc.nicklafferty1.repl.co/oauth2callback"
+
 
 @app.route('/')
 def index():
@@ -31,10 +32,12 @@ def index():
         return redirect(url_for('login'))
     return render_template('index.html', clients=get_client_list())
 
+
 @app.route('/login')
 def login():
     authorization_url, _ = flow.authorization_url(prompt='consent')
     return redirect(authorization_url)
+
 
 @app.route('/oauth2callback')
 def oauth2callback():
@@ -50,9 +53,11 @@ def oauth2callback():
     }
     return redirect(url_for('index'))
 
+
 def get_google_ads_client():
     credentials = Credentials(**session['credentials'])
     return GoogleAdsClient(credentials=credentials)
+
 
 def get_client_list():
     client = get_google_ads_client()
@@ -62,9 +67,13 @@ def get_client_list():
     client_list = []
     for resource_name in accessible_customers.resource_names:
         customer_id = resource_name.split('/')[-1]
-        client_list.append({"id": customer_id, "name": f"Client {customer_id}"})
+        client_list.append({
+            "id": customer_id,
+            "name": f"Client {customer_id}"
+        })
 
     return client_list
+
 
 @app.route('/fetch_changes', methods=['POST'])
 def fetch_change_history(client, client_id, days):
@@ -103,10 +112,12 @@ def fetch_change_history(client, client_id, days):
 
     return changes
 
+
 @app.route('/fetch_changes', methods=['POST'])
 def fetch_changes():
     client_id = request.form['client_id']
-    start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d').date()
+    start_date = datetime.strptime(request.form['start_date'],
+                                   '%Y-%m-%d').date()
     end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d').date()
     days = (end_date - start_date).days
 
@@ -114,9 +125,13 @@ def fetch_changes():
         client = get_google_ads_client()
         changes = fetch_change_history(client, client_id, days)
         summary = summarize_changes(changes)
-        return render_template('summary.html', summary=summary, client_id=client_id, days=days)
+        return render_template('summary.html',
+                               summary=summary,
+                               client_id=client_id,
+                               days=days)
     except GoogleAdsException as ex:
         return f"An error occurred: {ex}"
+
 
 def summarize_changes(changes):
     summary = ""
@@ -129,10 +144,12 @@ def summarize_changes(changes):
         summary += "-" * 50 + "\n"
     return summary
 
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)
     app = Flask(__name__)
-    app.secret_key = os.environ.get("FLASK_SECRET_KEY")  # Set this in Replit Secrets
+    app.secret_key = os.environ.get(
+        "FLASK_SECRET_KEY")  # Set this in Replit Secrets
 
     # Set up OAuth 2.0 flow
     flow = Flow.from_client_config(
@@ -144,8 +161,7 @@ if __name__ == "__main__":
                 "token_uri": "https://oauth2.googleapis.com/token",
             }
         },
-        scopes=["https://www.googleapis.com/auth/adwords"]
-    )
+        scopes=["https://www.googleapis.com/auth/adwords"])
     flow.redirect_uri = "https://your-repl-name.your-username.repl.co/oauth2callback"
 
     @app.route('/')
@@ -185,9 +201,13 @@ if __name__ == "__main__":
         client_list = []
         for resource_name in accessible_customers.resource_names:
             customer_id = resource_name.split('/')[-1]
-            client_list.append({"id": customer_id, "name": f"Client {customer_id}"})
+            client_list.append({
+                "id": customer_id,
+                "name": f"Client {customer_id}"
+            })
 
         return client_list
+
 
 @app.route('/fetch_changes', methods=['POST'])
 def fetch_change_history(client, client_id, days):
@@ -226,6 +246,7 @@ def fetch_change_history(client, client_id, days):
 
     return changes
 
+
 @app.route('/fetch_changes', methods=['POST'])
 def fetch_changes():
     client_id = request.form['client_id']
@@ -235,9 +256,13 @@ def fetch_changes():
         client = get_google_ads_client()
         changes = fetch_change_history(client, client_id, days)
         summary = summarize_changes(changes)
-        return render_template('summary.html', summary=summary, client_id=client_id, days=days)
+        return render_template('summary.html',
+                               summary=summary,
+                               client_id=client_id,
+                               days=days)
     except GoogleAdsException as ex:
         return f"An error occurred: {ex}"
+
 
 def summarize_changes(changes):
     summary = ""
@@ -249,6 +274,7 @@ def summarize_changes(changes):
         summary += f"Resource Name: {change['resource_name']}\n"
         summary += "-" * 50 + "\n"
     return summary
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8080)
